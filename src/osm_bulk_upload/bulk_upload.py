@@ -85,7 +85,7 @@ class ImportProcessor:
         relationStore = {}
         relationSort = False
         
-        osmData=.parse(infile)
+        osmData = ETree.parse(infile)
         osmRoot = osmData.getroot()
         if osmRoot.tag != "osm":
             raise XMLException("Input file must be a .osm XML file (JOSM-style)")
