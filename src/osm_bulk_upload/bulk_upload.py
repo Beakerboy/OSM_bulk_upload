@@ -194,21 +194,21 @@ class IdMap:
     def load(self) -> None:
         try:
             if os.stat(self.filename):
-                f=open(self.filename, "r")
-                self.id_map=pickle.load(f)
+                f=open(self.filename, "rb")
+                self.id_map = pickle.load(f)
                 f.close()
         except:
             pass
 
     def save(self) -> None:
-        f = open(self.filename+".tmp","w")
-        pickle.dump(self.id_map,f)
+        f = open(self.filename + ".tmp", "wb")
+        pickle.dump(self.id_map, f)
         f.close()
         try:
             os.remove(self.filename)
         except os.error:
             pass
-        os.rename(self.filename+".tmp", self.filename)
+        os.rename(self.filename + ".tmp", self.filename)
 
 
 class ChangesetClosed(Exception):
@@ -336,7 +336,7 @@ class DiffSet:
                                             'POST', xmlstr,headers=headers)
         if resp.status != 200:
             print("Error uploading changeset:" + str(resp.status))
-            print(content)
+            print(content.decode("utf-8"))
             exit(-1)
         else:
             self.processResult(content)
@@ -353,10 +353,10 @@ class DiffSet:
             old_id=child.attrib['old_id']
             if 'new_id' in child.attrib:
                 new_id=child.attrib['new_id']
-                self.id_map[id_type][old_id]=new_id
+                self.id_map[id_type][old_id] = new_id
             else:
                 # (Object deleted)
-                self.id_map[id_type][old_id]=old_id
+                self.id_map[id_type][old_id] = old_id
 
     def getItemLimit(self) -> int:
         # This is an arbitrary self-imposed limit (that must be below the changeset limit)
