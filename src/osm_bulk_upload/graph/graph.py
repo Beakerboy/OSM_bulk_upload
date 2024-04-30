@@ -28,7 +28,7 @@
 # Code taken from python-graph http://code.google.com/p/python-graph/
 
 from graph.traversal import traversal
-from typing import TypeVar
+from typing import Any, TypeVar
 
 
 T= TypeVar('T', bound='Digraph')
@@ -107,7 +107,7 @@ class Digraph (object):
         self.node_attr = {}          # Pairing: Node -> Attributes
         self.edge_attr = {}          # Pairing: Edge -> Attributes
 
-    def add_node(self: T, node, attrs = []) -> None:
+    def add_node(self: T, node: Any, attrs = []) -> None:
         """
         Add given node to the graph.
 
