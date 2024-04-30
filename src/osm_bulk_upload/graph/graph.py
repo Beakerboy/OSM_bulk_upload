@@ -28,6 +28,11 @@
 # Code taken from python-graph http://code.google.com/p/python-graph/
 
 from graph.traversal import traversal
+from typing import TypeVar
+
+
+T= TypeVar('T', bound='Digraph')
+
 
 class GraphError(RuntimeError):
     """
@@ -41,7 +46,7 @@ class AdditionError(GraphError):
     """
     pass
 
-class digraph (object):
+class Digraph (object):
     """
     Digraph class.
 
@@ -51,7 +56,7 @@ class digraph (object):
     add_nodes, traversal
     """
 
-    def __str__(self):
+    def __str__(self: T) -> str:
         """
         Return a string representing the digraph when requested by str() (or print).
 
@@ -61,7 +66,7 @@ class digraph (object):
         return "<graph object " + str(self.nodes()) + " " + str(self.edges()) + ">"
 
 
-    def __len__(self):
+    def __len__(self: T)-> int:
         """
         Return the order of the digraph when requested by len().
 
@@ -71,7 +76,7 @@ class digraph (object):
         return len(self.node_neighbors)
 
 
-    def __iter__(self):
+    def __iter__(self: T):
         """
         Return a iterator passing through all nodes in the digraph.
 
@@ -82,7 +87,7 @@ class digraph (object):
             yield each
 
 
-    def __getitem__(self, node):
+    def __getitem__(self: T, node):
         """
         Return a iterator passing through all neighbors of the given node.
 
@@ -92,7 +97,7 @@ class digraph (object):
         for each in self.node_neighbors[node]:
             yield each
 
-    def __init__(self):
+    def __init__(self: T) -> None:
         """
         Initialize a digraph.
         """
@@ -102,7 +107,7 @@ class digraph (object):
         self.node_attr = {}          # Pairing: Node -> Attributes
         self.edge_attr = {}          # Pairing: Edge -> Attributes
 
-    def add_node(self, node, attrs = []):
+    def add_node(self: T, node, attrs = []) -> None:
         """
         Add given node to the graph.
 
@@ -123,7 +128,7 @@ class digraph (object):
             raise AdditionError
 
 
-    def add_nodes(self, nodelist):
+    def add_nodes(self: T, nodelist) -> None:
         """
         Add given nodes to the graph.
 
@@ -136,7 +141,7 @@ class digraph (object):
         for each in nodelist:
             self.add_node(each)
 
-    def add_edge(self, u, v, wt = 1, label = '', attrs = []):
+    def add_edge(self, u, v, wt = 1, label = '', attrs = []) -> None:
         """
         Add an directed edge (u,v) to the graph connecting nodes u to v.
 
