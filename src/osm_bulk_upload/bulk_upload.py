@@ -73,7 +73,7 @@ class ImportProcessor:
     current_changes = None
     id_map = None
 
-    def __init__(self: T, user, password, id_map, tags={}):
+    def __init__(self: T, user, password, id_map, tags={}) -> None:
         self.httpObj = httplib2.Http()
         self.httpObj.add_credentials(user,password)
         self.id_map = id_map
@@ -81,7 +81,7 @@ class ImportProcessor:
         self.createChanges()
 
 
-    def parse(self: T, infile):
+    def parse(self: T, infile) -> None:
         relationStore = {}
         relationSort = False
         
@@ -155,7 +155,7 @@ class ImportProcessor:
 
         self.current_changeset.close() # (uploads any remaining diffset changes)
 
-    def updateRelationMemberIds(self: T, elem):
+    def updateRelationMemberIds(self: T, elem) -> None:
         for child in elem.iter('member'):
             if 'ref' in child.attrib:
                 old_id=child.attrib['ref']
@@ -163,10 +163,10 @@ class ImportProcessor:
                 if old_id in self.id_map[old_id_type]:
                     child.attrib['ref'] = self.id_map[old_id_type][old_id]
 
-    def createChangeset(self: T):
+    def createChangeset(self: T) -> None:
         self.current_changeset = Changeset(tags=self.tags, id_map=self.id_map, httpObj=self.httpObj)
 
-    def addToChangeset(self: T, elem):
+    def addToChangeset(self: T, elem) -> None:
         if 'action' in elem.attrib:
             action = elem.attrib['action']
         else:
@@ -184,14 +184,14 @@ class IdMap:
     # - if ids in other files need replacing, for example
     id_map = {'node':{}, 'way':{}, 'relation':{}}
 
-    def __init__(self, filename=''):
+    def __init__(self, filename='') -> None:
         self.filename = filename
         self.load()
 
     def __getitem__(self, item):
         return self.id_map[item]
 
-    def load(self):
+    def load(self) -> None:
         try:
             if os.stat(self.filename):
                 f=open(self.filename, "r")
@@ -200,8 +200,8 @@ class IdMap:
         except:
             pass
 
-    def save(self):
-        f=open(self.filename+".tmp","w")
+    def save(self) -> None:
+        f = open(self.filename+".tmp","w")
         pickle.dump(self.id_map,f)
         f.close()
         try:
@@ -224,7 +224,7 @@ class Changeset:
     
     itemcount = 0
 
-    def __init__(self,tags={},id_map=None, httpObj=None):
+    def __init__(self,tags={}, id_map=None, httpObj=None) -> None:
         self.id = None
         self.tags = tags
         self.id_map = id_map
@@ -232,7 +232,7 @@ class Changeset:
         
         self.createDiffSet()
 
-    def open(self):
+    def open(self) -> None:
         createReq = ETree.Element('osm', version="0.6")
         change = ETree.SubElement(createReq, 'changeset')
         for tag in self.tags:
@@ -247,7 +247,7 @@ class Changeset:
         print("Created changeset: " + str(self.id))
         self.opened = True
 
-    def close(self):
+    def close(self) -> None:
         if not self.opened:
             return
         self.currentDiffSet.upload()
@@ -260,10 +260,10 @@ class Changeset:
         print("Closed changeset: " + str(self.id))
         self.closed = True
 
-    def createDiffSet(self):
+    def createDiffSet(self) -> None:
         self.currentDiffSet = DiffSet(self, self.id_map, self.httpObj)
 
-    def addChange(self,action,item):
+    def addChange(self, action, item) -> None:
         if not self.opened:
             self.open() # So that a changeset is only opened when required.
         if self.closed:
@@ -280,7 +280,7 @@ class Changeset:
             self.currentDiffSet.upload()
             self.close()
 
-    def getItemLimit(self):
+    def getItemLimit(self) -> int:
         # This is actually dictated by the API's capabilities call
         return 50000
 
@@ -346,7 +346,7 @@ class DiffSet:
     # Uploading a diffset returns a <diffResult> containing elements
     # that map the old id to the new id
     # Process them.
-    def processResult(self,content):
+    def processResult(self, content) -> None:
         diffResult=ETree.fromstring(content)
         for child in list(diffResult):
             id_type = child.tag
@@ -358,7 +358,7 @@ class DiffSet:
                 # (Object deleted)
                 self.id_map[id_type][old_id]=old_id
 
-    def getItemLimit(self):
+    def getItemLimit(self) -> int:
         # This is an arbitrary self-imposed limit (that must be below the changeset limit)
         # so to limit upload times to sensible chunks.
         return 1000
