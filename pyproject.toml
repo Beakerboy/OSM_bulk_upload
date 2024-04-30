@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "OSM_bulk_upload"
+version = "0.0.1"
+authors = [
+  { name="Kevin Nowaczyk", email="beakerboy99@yahoo.com" },
+]
+description = "Import OSM xml files into OpenStreetMap."
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+[project.optional-dependencies]
+tests = [
+  'mypy',
+  'pytest',
+  'pytest-cov',
+  'pytest-mock',
+  'coveralls',
+  'pep8-naming',
+  'flake8-annotations'
+]
+[project.urls]
+"Homepage" = "https://github.com/Beakerboy/OSM_bulk_upload"
+"Bug Tracker" = "https://github.com/Beakerboy/OSM_bulk_upload/issues"
+    
+[tool.pytest.ini_options]
+pythonpath = "src:tests"
+testpaths = [
+    "tests",
+]
