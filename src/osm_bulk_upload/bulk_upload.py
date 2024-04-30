@@ -70,7 +70,7 @@ T = TypeVar('T', bound='ImportProcessor')
 
 
 class ImportProcessor:
-    currentChanges = None
+    current_changes = None
     id_map = None
 
     def __init__(self: T, user, password, id_map, tags={}):
