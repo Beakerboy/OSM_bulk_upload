@@ -27,7 +27,6 @@
 
 # Code taken from python-graph http://code.google.com/p/python-graph/
 
-from graph.traversal import traversal
 from typing import Any, TypeVar
 
 
@@ -166,20 +165,55 @@ class Digraph (object):
             self.edge_properties[(u, v)] = [label, wt]
             self.edge_attr[(u, v)] = attrs
 
-    def traversal(self, node, order = 'pre'):
+    def traversal(self: T, node: Any, order: str) -> Generator[Any]:
         """
         Graph traversal iterator.
 
+        @type  graph: graph, digraph
+        @param graph: Graph.
+    
         @type  node: node
         @param node: Node.
-
+    
         @type  order: string
         @param order: traversal ordering. Possible values are:
             2. 'pre' - Preordering (default)
             1. 'post' - Postordering
-
+    
         @rtype:  iterator
         @return: Traversal iterator.
         """
-        for each in traversal.traversal(self, node, order):
+        visited = {}
+        if (order == 'pre'):
+            pre = 1
+            post = 0
+        elif (order == 'post'):
+            pre = 0
+            post = 1
+    
+        for each in self._dfs(visited, node, pre, post):
             yield each
+
+    def _dfs(self: T, visited: dict, node: Any, pre: int, post: int) -> Generator[Any]:
+        """
+        Depth-first search subfunction for traversals.
+
+        @type  graph: graph, digraph
+        @param graph: Graph.
+
+        @type  visited: dictionary
+        @param visited: List of nodes (visited nodes are marked non-zero).
+
+        @type  node: node
+        @param node: Node to be explored by DFS.
+        """
+        visited[node] = 1
+        if (pre):
+            yield node
+        # Explore recursively the connected component
+        for each in self[node]:
+            if (each not in visited):
+                for other in self._dfs(visited, each, pre, post):
+                    yield other
+        if (post):
+            yield node
