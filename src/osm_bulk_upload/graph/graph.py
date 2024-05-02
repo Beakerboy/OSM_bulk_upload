@@ -140,7 +140,7 @@ class Digraph (object):
         for each in nodelist:
             self.add_node(each)
 
-    def add_edge(self, u, v, wt = 1, label = '', attrs = []) -> None:
+    def add_edge(self: T, u: Any, v: Any, wt: int=1, label: str='', attrs=[]) -> None:
         """
         Add an directed edge (u,v) to the graph connecting nodes u to v.
 
@@ -171,15 +171,15 @@ class Digraph (object):
 
         @type  graph: graph, digraph
         @param graph: Graph.
-    
+
         @type  node: node
         @param node: Node.
-    
+
         @type  order: string
         @param order: traversal ordering. Possible values are:
             2. 'pre' - Preordering (default)
             1. 'post' - Postordering
-    
+
         @rtype:  iterator
         @return: Traversal iterator.
         """
