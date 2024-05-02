@@ -27,7 +27,7 @@
 
 # Code taken from python-graph http://code.google.com/p/python-graph/
 
-from typing import Any, TypeVar
+from typing import Any, Generator, TypeVar
 
 
 T= TypeVar('T', bound='Digraph')
@@ -194,7 +194,8 @@ class Digraph (object):
         for each in self._dfs(visited, node, pre, post):
             yield each
 
-    def _dfs(self: T, visited: dict, node: Any, pre: int, post: int) -> Generator[Any]:
+    def _dfs(self: T, visited: dict, node: Any, pre: int, post: int
+            ) -> Generator[Any]:
         """
         Depth-first search subfunction for traversals.
 
