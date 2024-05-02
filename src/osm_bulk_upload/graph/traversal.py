@@ -29,10 +29,12 @@ Traversal algorithms.
 @sort: traversal
 """
 
+from typing import Any, Generator
+
 
 # Minimal spanning tree
 
-def traversal(graph, node, order):
+def traversal(graph: Digraph, node: Any, order: str) -> Generator[Any]:
     """
     Graph traversal iterator.
 
@@ -62,10 +64,10 @@ def traversal(graph, node, order):
         yield each
 
 
-def _dfs(graph, visited, node, pre, post):
+def _dfs(graph: Digraph, visited: dict, node: Any, pre: int, post: int) -> Generator[Any]:
     """
     Depht-first search subfunction for traversals.
-    
+
     @type  graph: graph, digraph
     @param graph: Graph.
 
@@ -76,10 +78,12 @@ def _dfs(graph, visited, node, pre, post):
     @param node: Node to be explored by DFS.
     """
     visited[node] = 1
-    if (pre): yield node
+    if (pre):
+        yield node
     # Explore recursively the connected component
     for each in graph[node]:
         if (each not in visited):
             for other in _dfs(graph, visited, each, pre, post):
                 yield other
-    if (post): yield node
+    if (post):
+        yield node
