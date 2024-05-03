@@ -73,7 +73,7 @@ class ImportProcessor:
     current_changes = None
     id_map = None
 
-    def __init__(self: T, user, password, id_map, tags={}) -> None:
+    def __init__(self: T, user: str, password: str, id_map: IdMap, tags: dict={}) -> None:
         self.httpObj = httplib2.Http()
         self.httpObj.add_credentials(user,password)
         self.id_map = id_map
@@ -104,20 +104,20 @@ class ImportProcessor:
             for elem in osmRoot.iter(type):
                 # If elem.id is already mapped we can skip this object
                 #
-                id=elem.attrib['id']
+                id = elem.attrib['id']
                 if id in self.id_map[type]:
                     continue
                 #
                 # If elem contains nodes, ways or relations as a child
                 # then the ids need to be remapped.
-                if elem.tag=='way':
+                if elem.tag == 'way':
                     count=0
                     for child in elem.iter('nd'):
                         count=count + 1
                         if count > 2000:
                             raise XMLException("\nnode count >= 2000 in <%s>\n" % elem.attrib['id'])
                         if 'ref' in child.attrib:
-                            old_id=child.attrib['ref']
+                            old_id = child.attrib['ref']
                             if old_id in id_map['node']:
                                 child.attrib['ref'] = self.id_map['node'][old_id]
                 
@@ -158,7 +158,7 @@ class ImportProcessor:
     def updateRelationMemberIds(self: T, elem) -> None:
         for child in elem.iter('member'):
             if 'ref' in child.attrib:
-                old_id=child.attrib['ref']
+                old_id = child.attrib['ref']
                 old_id_type = child.attrib['type']
                 if old_id in self.id_map[old_id_type]:
                     child.attrib['ref'] = self.id_map[old_id_type][old_id]
@@ -396,5 +396,5 @@ if __name__ == "__main__":
         'created_by': user_agent,
         'comment': options.comment
     }
-    importProcessor = ImportProcessor(options.user,options.password,id_map,tags)
+    importProcessor = ImportProcessor(options.user, options.password, id_map, tags)
     importProcessor.parse(options.infile)
