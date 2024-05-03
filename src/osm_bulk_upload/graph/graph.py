@@ -30,7 +30,7 @@
 from typing import Any, Generator, Iterator, TypeVar
 
 
-T= TypeVar('T', bound='Digraph')
+T = TypeVar('T', bound='Digraph')
 
 
 class GraphError(RuntimeError):
@@ -40,12 +40,14 @@ class GraphError(RuntimeError):
     """
     pass
 
+
 class AdditionError(GraphError):
     """
     This error is raised when trying to add a node already added to the graph
     or digraph.
     """
     pass
+
 
 class Digraph (object):
     """
