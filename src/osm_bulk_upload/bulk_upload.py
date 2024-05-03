@@ -273,9 +273,11 @@ class Changeset:
             return
         self.currentDiffSet.upload()
         
-        resp, content = self.httpObj.request(api_host +
-            '/api/0.6/changeset/' +
-            self.id + '/close','PUT',headers=headers)
+        resp, content = self.httpObj.request(
+            api_host + '/api/0.6/changeset/' + self.id + '/close',
+            'PUT',
+            headers=headers
+        )
         if resp.status != 200:
             print("Error closing changeset " + str(self.id) + ":" + str(resp.status))
         print("Closed changeset: " + str(self.id))
@@ -313,7 +315,7 @@ class DiffSet:
     itemcount = 0
     closed = False
     
-    def __init__(self: T1, changeset, id_map, httpObj):
+    def __init__(self: T1, changeset: Changeset, id_map, httpObj):
         self.elems = {
             'create': ETree.Element('create'),
             'modify': ETree.Element('modify'),
@@ -324,10 +326,10 @@ class DiffSet:
         self.httpObj = httpObj
         self.item_limit = 1000
 
-    def __getitem__(self: T1, item):
+    def __getitem__(self: T1, item: ETree.Element):
         return self.elems[item]
 
-    def addChange(self: T1, action, item):
+    def addChange(self: T1, action, item) -> None:
         if self.closed:
             raise DiffSetClosed
         self[action].append(item)
@@ -336,7 +338,7 @@ class DiffSet:
         if self.itemcount >= self.item_limit:
             self.upload()
 
-    def upload(self: T1):
+    def upload(self: T1) -> None:
         if self.itemcount > 0 and not self.closed:
             xml = ETree.Element('osmChange')
             for elem in self.elems.values():
@@ -345,8 +347,9 @@ class DiffSet:
 
             xmlstr = ETree.tostring(xml)
 
+            id = self.changeset.id 
             resp, content = self.httpObj.request(
-                api_host + '/api/0.6/changeset/' + self.changeset.id + '/upload',
+                api_host + '/api/0.6/changeset/' + id + '/upload',
                 'POST',
                 xmlstr,
                 headers=headers
@@ -366,8 +369,8 @@ class DiffSet:
         that map the old id to the new id
         Process them.
         '''
-        diffResult = ETree.fromstring(content)
-        for child in list(diffResult):
+        diff_result = ETree.fromstring(content)
+        for child in list(diff_result):
             id_type = child.tag
             old_id = child.attrib['old_id']
             if 'new_id' in child.attrib:
