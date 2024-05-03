@@ -110,14 +110,16 @@ class Digraph (object):
         """
         Add given node to the graph.
 
-        @attention: While nodes can be of any type, it's strongly recommended to use only
-        numbers and single-line strings as node identifiers if you intend to use write().
+        @attention: While nodes can be of any type, it's strongly recommended
+            to use only numbers and single-line strings as node identifiers if
+            you intend to use write().
 
         @type  node: node
         @param node: Node identifier.
 
         @type  attrs: list
-        @param attrs: List of node attributes specified as (attribute, value) tuples.
+        @param attrs: List of node attributes specified as (attribute,
+            value) tuples.
         """
         if (node not in self.node_neighbors):
             self.node_neighbors[node] = []
@@ -131,8 +133,9 @@ class Digraph (object):
         """
         Add given nodes to the graph.
 
-        @attention: While nodes can be of any type, it's strongly recommended to use only
-        numbers and single-line strings as node identifiers if you intend to use write().
+        @attention: While nodes can be of any type, it's strongly recommended
+            to use only numbers and single-line strings as node identifiers if
+            you intend to use write().
 
         @type  nodelist: list
         @param nodelist: List of nodes to be added to the graph.
@@ -140,24 +143,18 @@ class Digraph (object):
         for each in nodelist:
             self.add_node(each)
 
-    def add_edge(self: T, u: Any, v: Any, wt: int=1, label: str='', attrs=[]) -> None:
+    def add_edge(
+                    self: T, u: Any, v: Any, wt: int=1,
+                    label: str='', attrs: list=[]
+                ) -> None:
         """
         Add an directed edge (u,v) to the graph connecting nodes u to v.
-
-        @type  u: node
         @param u: One node.
-
-        @type  v: node
         @param v: Other node.
-
-        @type  wt: number
         @param wt: Edge weight.
-
-        @type  label: string
         @param label: Edge label.
-
-        @type  attrs: list
-        @param attrs: List of node attributes specified as (attribute, value) tuples.
+        @param attrs: List of node attributes specified as (attribute, value)
+            tuples.
         """
         if (v not in self.node_neighbors[u]):
             self.node_neighbors[u].append(v)
@@ -190,11 +187,12 @@ class Digraph (object):
         elif (order == 'post'):
             pre = 0
             post = 1
-    
+
         for each in self._dfs(visited, node, pre, post):
             yield each
 
-    def _dfs(self: T, visited: dict, node: Any, pre: int, post: int
+    def _dfs(
+                self: T, visited: dict, node: Any, pre: int, post: int
             ) -> Generator[Any]:
         """
         Depth-first search subfunction for traversals.
