@@ -37,6 +37,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+import argparse
 import xml.etree.cElementTree as ETree
 import httplib2
 import pickle
@@ -56,6 +57,23 @@ api_host = 'https://api.openstreetmap.org'
 headers = {
     'User-Agent': user_agent,
 }
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument( "-i", "--input", required=True, help="read data from input.osm")
+    parser.add_argument( "-u", "--user", required=True, help="username")
+    parser.add_argument("-p", "--password", required=True, help="password")
+    parser.add_argument("-c", "--comment", required=True, help="ChangeSet Comment")
+    args = parser.parse_args()
+
+    id_map = IdMap(options.infile + ".db")
+    tags = {
+        'created_by': user_agent,
+        'comment': args.comment
+    }
+    import_processor = ImportProcessor(args.user, args.password, id_map, tags)
+    import_processor.parse(args.input)
 
 
 class XMLException(Exception):
@@ -365,36 +383,4 @@ class DiffSet:
 
 
 if __name__ == "__main__":
-    import optparse
-    # Allow enforcing of required arguements
-    # code from http://www.python.org/doc/2.3/lib/optparse-extending-examples.html
-    class OptionParser (optparse.OptionParser):
-
-        def check_required (self, opt):
-            option = self.get_option(opt)
-
-            # Assumes the option's 'default' is set to None!
-            if getattr(self.values, option.dest) is None:
-                self.error("%s option not supplied" % option)
-
-    usage = "usage: %prog -i input.osm -u user -p password"
-
-    parser = OptionParser(usage)
-    parser.add_option("-i", "--input", dest="infile", help="read data from input.osm")
-    parser.add_option("-u", "--user", dest="user", help="username")
-    parser.add_option("-p", "--password", dest="password", help="password")
-    parser.add_option("-c", "--comment", dest="comment", help="ChangeSet Comment")
-    (options, args) = parser.parse_args()
-
-    parser.check_required("-i")
-    parser.check_required("-u")
-    parser.check_required("-p")
-    parser.check_required("-c")
-
-    id_map = IdMap(options.infile + ".db")
-    tags = {
-        'created_by': user_agent,
-        'comment': options.comment
-    }
-    importProcessor = ImportProcessor(options.user, options.password, id_map, tags)
-    importProcessor.parse(options.infile)
+    main()
