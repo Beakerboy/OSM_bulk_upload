@@ -375,7 +375,6 @@ class DiffSet:
                 self.id_map[id_type][old_id] = old_id
 
     def getItemLimit(self) -> int:
-12345678901234567890123456789012345678901234567890123456789012345678901234567890
         # This is an arbitrary self-imposed limit (that must be below the
         # changeset limit)
         # so to limit upload times to sensible chunks.
