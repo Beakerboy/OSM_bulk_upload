@@ -348,10 +348,12 @@ class DiffSet:
         #f.write("\n\n")
         #f.close()
 
-        resp,content = self.httpObj.request(api_host +
-                                            '/api/0.6/changeset/'+self.changeset.id+
-                                            '/upload',
-                                            'POST', xmlstr,headers=headers)
+        resp,content = self.httpObj.request(
+            api_host + '/api/0.6/changeset/' + self.changeset.id + '/upload',
+            'POST',
+            xmlstr,
+            headers=headers
+        )
         if resp.status != 200:
             print("Error uploading changeset:" + str(resp.status))
             print(content.decode("utf-8"))
@@ -377,7 +379,9 @@ class DiffSet:
                 self.id_map[id_type][old_id] = old_id
 
     def getItemLimit(self) -> int:
-        # This is an arbitrary self-imposed limit (that must be below the changeset limit)
+12345678901234567890123456789012345678901234567890123456789012345678901234567890
+        # This is an arbitrary self-imposed limit (that must be below the
+        # changeset limit)
         # so to limit upload times to sensible chunks.
         return 1000
 
