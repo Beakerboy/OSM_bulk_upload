@@ -144,8 +144,8 @@ class Digraph (object):
             self.add_node(each)
 
     def add_edge(
-                    self: T, u: Any, v: Any, wt: int=1,
-                    label: str='', attrs: list=[]
+                    self: T, u: Any, v: Any, wt: int = 1,
+                    label: str = '', attrs: list = []
                 ) -> None:
         """
         Add an directed edge (u,v) to the graph connecting nodes u to v.
