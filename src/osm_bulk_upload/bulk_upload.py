@@ -191,10 +191,10 @@ class ImportProcessor:
             action = 'create'
 
         try:
-            self.current_changeset.addChange(action, elem)
+            self.current_changeset.add_change(action, elem)
         except ChangesetClosed:
             self.createChangeset()
-            self.current_changeset.addChange(action, elem)
+            self.current_changeset.add_change(action, elem)
 
 
 class IdMap:
@@ -251,7 +251,7 @@ class Changeset:
         self.id_map = id_map
         self.httpObj = httpObj
         self.item_limit = 50000
-        self.createDiffSet()
+        self.create_diff_set()
 
     def open(self) -> None:
         createReq = ETree.Element('osm', version="0.6")
@@ -283,20 +283,20 @@ class Changeset:
         print("Closed changeset: " + str(self.id))
         self.closed = True
 
-    def createDiffSet(self: T) -> None:
+    def create_diff_set(self: T) -> None:
         self.currentDiffSet = DiffSet(self, self.id_map, self.httpObj)
 
-    def addChange(self, action, item) -> None:
+    def add_change(self, action, item) -> None:
         if not self.opened:
             self.open() # So that a changeset is only opened when required.
         if self.closed:
             raise ChangesetClosed
         item.attrib['changeset']=self.id
         try:
-            self.currentDiffSet.addChange(action,item)
+            self.currentDiffSet.add_change(action,item)
         except DiffSetClosed:
-            self.createDiffSet()
-            self.currentDiffSet.addChange(action,item)
+            self.create_diff_set()
+            self.currentDiffSet.add_change(action,item)
         
         self.itemcount += 1
         if self.itemcount >= self.item_limit:
@@ -329,7 +329,7 @@ class DiffSet:
     def __getitem__(self: T1, item: ETree.Element):
         return self.elems[item]
 
-    def addChange(self: T1, action, item) -> None:
+    def add_change(self: T1, action, item) -> None:
         if self.closed:
             raise DiffSetClosed
         self[action].append(item)
@@ -347,7 +347,7 @@ class DiffSet:
 
             xmlstr = ETree.tostring(xml)
 
-            id = self.changeset.id 
+            id = self.changeset.id
             resp, content = self.httpObj.request(
                 api_host + '/api/0.6/changeset/' + id + '/upload',
                 'POST',
