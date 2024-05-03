@@ -91,7 +91,7 @@ class ImportProcessor:
     current_changes = None
     id_map = None
 
-    def __init__(self: T, user: str, password: str, id_map: IdMap, tags: dict={}) -> None:
+    def __init__(self: T, user: str, password: str, id_map: IdMap, tags: dict = {}) -> None:
         self.httpObj = httplib2.Http()
         self.httpObj.add_credentials(user,password)
         self.id_map = id_map
@@ -233,6 +233,9 @@ class ChangesetClosed(Exception):
     pass
 
 
+T = Typevar('T', bound='Changeset')
+
+
 class Changeset:
     id = None
     tags = {}
@@ -242,7 +245,7 @@ class Changeset:
     
     itemcount = 0
 
-    def __init__(self,tags={}, id_map=None, httpObj=None) -> None:
+    def __init__(self: T, tags: dict = {}, id_map=None, httpObj=None) -> None:
         self.id = None
         self.tags = tags
         self.id_map = id_map
@@ -265,7 +268,7 @@ class Changeset:
         print("Created changeset: " + str(self.id))
         self.opened = True
 
-    def close(self) -> None:
+    def close(self: T) -> None:
         if not self.opened:
             return
         self.currentDiffSet.upload()
@@ -278,7 +281,7 @@ class Changeset:
         print("Closed changeset: " + str(self.id))
         self.closed = True
 
-    def createDiffSet(self) -> None:
+    def createDiffSet(self: T) -> None:
         self.currentDiffSet = DiffSet(self, self.id_map, self.httpObj)
 
     def addChange(self, action, item) -> None:
@@ -307,11 +310,14 @@ class DiffSetClosed(Exception):
     pass
 
 
+T1 = Typevar('T1', bound='DiffSet')
+
+
 class DiffSet:
     itemcount = 0
     closed = False
     
-    def __init__(self, changeset, id_map, httpObj):
+    def __init__(self: T1, changeset, id_map, httpObj):
         self.elems = {
             'create': ETree.Element('create'),
             'modify': ETree.Element('modify'),
@@ -321,10 +327,10 @@ class DiffSet:
         self.id_map = id_map
         self.httpObj = httpObj
 
-    def __getitem__(self, item):
+    def __getitem__(self: T1, item):
         return self.elems[item]
 
-    def addChange(self,action,item):
+    def addChange(self: T1, action, item):
         if self.closed:
             raise DiffSetClosed
         self[action].append(item)
@@ -333,7 +339,7 @@ class DiffSet:
         if self.itemcount >= self.getItemLimit():
             self.upload()
 
-    def upload(self):
+    def upload(self: T1):
         if not self.itemcount or self.closed==True:
             return False
     
@@ -362,7 +368,7 @@ class DiffSet:
     # Uploading a diffset returns a <diffResult> containing elements
     # that map the old id to the new id
     # Process them.
-    def processResult(self, content) -> None:
+    def processResult(self: T1, content) -> None:
         diffResult=ETree.fromstring(content)
         for child in list(diffResult):
             id_type = child.tag
@@ -374,7 +380,7 @@ class DiffSet:
                 # (Object deleted)
                 self.id_map[id_type][old_id] = old_id
 
-    def getItemLimit(self) -> int:
+    def getItemLimit(self: T1) -> int:
         # This is an arbitrary self-imposed limit (that must be below the
         # changeset limit)
         # so to limit upload times to sensible chunks.
