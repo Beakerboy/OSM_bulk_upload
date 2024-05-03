@@ -139,7 +139,7 @@ class ImportProcessor:
                             if old_id in id_map['node']:
                                 child.attrib['ref'] = self.id_map['node'][old_id]
                 
-                self.addToChangeset(elem)
+                self.add_to_changeset(elem)
 
         for elem in osmRoot.iter('relation'):
             if relationSort:
@@ -148,8 +148,8 @@ class ImportProcessor:
                 if elem.attrib['id'] in self.id_map['relation']:
                     continue
                 else:
-                    self.updateRelationMemberIds(elem)
-                    self.addToChangeset(elem)
+                    self.update_relation_member_ids(elem)
+                    self.add_to_changeset(elem)
 
         if relationSort:
             gr = pygraph.digraph()
@@ -168,12 +168,12 @@ class ImportProcessor:
                 if relation == 'root': continue
                 r = relationStore[relation]
                 if r.attrib['id'] in self.id_map['relation']: continue
-                self.updateRelationMemberIds(r)
-                self.addToChangeset(r)
+                self.update_relation_member_ids(r)
+                self.add_to_changeset(r)
 
         self.current_changeset.close() # (uploads any remaining diffset changes)
 
-    def updateRelationMemberIds(self: T, elem) -> None:
+    def update_relation_member_ids(self: T, elem: ETree.Element) -> None:
         for child in elem.iter('member'):
             if 'ref' in child.attrib:
                 old_id = child.attrib['ref']
@@ -181,10 +181,10 @@ class ImportProcessor:
                 if old_id in self.id_map[old_id_type]:
                     child.attrib['ref'] = self.id_map[old_id_type][old_id]
 
-    def createChangeset(self: T) -> None:
+    def create_changeset(self: T) -> None:
         self.current_changeset = Changeset(tags=self.tags, id_map=self.id_map, httpObj=self.httpObj)
 
-    def addToChangeset(self: T, elem) -> None:
+    def add_to_changeset(self: T, elem) -> None:
         if 'action' in elem.attrib:
             action = elem.attrib['action']
         else:
@@ -193,7 +193,7 @@ class ImportProcessor:
         try:
             self.current_changeset.add_change(action, elem)
         except ChangesetClosed:
-            self.createChangeset()
+            self.create_changeset()
             self.current_changeset.add_change(action, elem)
 
 
@@ -245,7 +245,7 @@ class Changeset:
     
     itemcount = 0
 
-    def __init__(self: T, tags: dict = {}, id_map=None, httpObj=None) -> None:
+    def __init__(self: T, tags: dict = {}, id_map: IdMap: IdMap, httpObj=None) -> None:
         self.id = None
         self.tags = tags
         self.id_map = id_map
@@ -315,7 +315,7 @@ class DiffSet:
     itemcount = 0
     closed = False
     
-    def __init__(self: T1, changeset: Changeset, id_map, httpObj):
+    def __init__(self: T1, changeset: Changeset, id_map: IdMap, httpObj):
         self.elems = {
             'create': ETree.Element('create'),
             'modify': ETree.Element('modify'),
@@ -329,7 +329,7 @@ class DiffSet:
     def __getitem__(self: T1, item: ETree.Element):
         return self.elems[item]
 
-    def add_change(self: T1, action, item) -> None:
+    def add_change(self: T1, action: str, item: ETree.Element) -> None:
         if self.closed:
             raise DiffSetClosed
         self[action].append(item)
