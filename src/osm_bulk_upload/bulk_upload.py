@@ -250,7 +250,7 @@ class Changeset:
         self.tags = tags
         self.id_map = id_map
         self.httpObj = httpObj
-        
+        self.item_limit = 50000
         self.createDiffSet()
 
     def open(self) -> None:
@@ -273,7 +273,7 @@ class Changeset:
             return
         self.currentDiffSet.upload()
         
-        resp,content = self.httpObj.request(api_host +
+        resp, content = self.httpObj.request(api_host +
             '/api/0.6/changeset/' +
             self.id + '/close','PUT',headers=headers)
         if resp.status != 200:
@@ -297,13 +297,9 @@ class Changeset:
             self.currentDiffSet.addChange(action,item)
         
         self.itemcount += 1
-        if self.itemcount >= self.get_item_limit():
+        if self.itemcount >= self.item_limit:
             self.currentDiffSet.upload()
             self.close()
-
-    def get_item_limit(self) -> int:
-        # This is actually dictated by the API's capabilities call
-        return 50000
 
 
 class DiffSetClosed(Exception):
@@ -326,6 +322,7 @@ class DiffSet:
         self.changeset = changeset
         self.id_map = id_map
         self.httpObj = httpObj
+        self.item_limit = 1000
 
     def __getitem__(self: T1, item):
         return self.elems[item]
@@ -336,55 +333,49 @@ class DiffSet:
         self[action].append(item)
 
         self.itemcount += 1
-        if self.itemcount >= self.get_item_limit():
+        if self.itemcount >= self.item_limit:
             self.upload()
 
     def upload(self: T1):
-        if not self.itemcount or self.closed==True:
-            return False
-    
-        xml = ETree.Element('osmChange')
-        for elem in self.elems.values():
-            xml.append(elem)
-        print("Uploading to changeset " + str(self.changeset.id))
+        if self.itemcount > 0 and not self.closed:
+            xml = ETree.Element('osmChange')
+            for elem in self.elems.values():
+                xml.append(elem)
+            print("Uploading to changeset " + str(self.changeset.id))
 
-        xmlstr = ETree.tostring(xml)
+            xmlstr = ETree.tostring(xml)
 
-        resp,content = self.httpObj.request(
-            api_host + '/api/0.6/changeset/' + self.changeset.id + '/upload',
-            'POST',
-            xmlstr,
-            headers=headers
-        )
-        if resp.status != 200:
-            print("Error uploading changeset:" + str(resp.status))
-            print(content.decode("utf-8"))
-            exit(-1)
-        else:
-            self.processResult(content)
-            self.id_map.save()
-            self.closed = True
+            resp, content = self.httpObj.request(
+                api_host + '/api/0.6/changeset/' + self.changeset.id + '/upload',
+                'POST',
+                xmlstr,
+                headers=headers
+            )
+            if resp.status != 200:
+                print("Error uploading changeset:" + str(resp.status))
+                print(content.decode("utf-8"))
+                exit(-1)
+            else:
+                self.process_result(content)
+                self.id_map.save()
+                self.closed = True
 
-    # Uploading a diffset returns a <diffResult> containing elements
-    # that map the old id to the new id
-    # Process them.
-    def processResult(self: T1, content) -> None:
-        diffResult=ETree.fromstring(content)
+    def process_result(self: T1, content: str) -> None:
+        '''
+        Uploading a diffset returns a <diffResult> containing elements
+        that map the old id to the new id
+        Process them.
+        '''
+        diffResult = ETree.fromstring(content)
         for child in list(diffResult):
             id_type = child.tag
-            old_id=child.attrib['old_id']
+            old_id = child.attrib['old_id']
             if 'new_id' in child.attrib:
-                new_id=child.attrib['new_id']
+                new_id = child.attrib['new_id']
                 self.id_map[id_type][old_id] = new_id
             else:
                 # (Object deleted)
                 self.id_map[id_type][old_id] = old_id
-
-    def get_item_limit(self: T1) -> int:
-        # This is an arbitrary self-imposed limit (that must be below the
-        # changeset limit)
-        # so to limit upload times to sensible chunks.
-        return 1000
 
 
 if __name__ == "__main__":
