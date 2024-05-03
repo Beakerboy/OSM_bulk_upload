@@ -182,7 +182,7 @@ class ImportProcessor:
                     child.attrib['ref'] = self.id_map[old_id_type][old_id]
 
     def create_changeset(self: T) -> None:
-        self.current_changeset = Changeset(tags=self.tags, id_map=self.id_map, http_obj=self.http_obj)
+        self.current_changeset = Changeset(self.tags, self.id_map, self.http_obj)
 
     def add_to_changeset(self: T, elem) -> None:
         if 'action' in elem.attrib:
@@ -245,7 +245,7 @@ class Changeset:
 
     itemcount = 0
 
-    def __init__(self: T, tags: dict, id_map: IdMap, http_obj) -> None:
+    def __init__(self: T, tags: dict, id_map: IdMap, http_obj: httplib2.Http) -> None:
         self.id = None
         self.tags = tags
         self.id_map = id_map
@@ -315,7 +315,7 @@ class DiffSet:
     itemcount = 0
     closed = False
     
-    def __init__(self: T1, changeset: Changeset, id_map: IdMap, http_obj) -> None:
+    def __init__(self: T1, changeset: Changeset, id_map: IdMap, http_obj: httplib2.Http) -> None:
         self.elems = {
             'create': ETree.Element('create'),
             'modify': ETree.Element('modify'),
