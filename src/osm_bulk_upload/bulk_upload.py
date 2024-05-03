@@ -343,10 +343,6 @@ class DiffSet:
         print("Uploading to changeset " + str(self.changeset.id))
 
         xmlstr = ETree.tostring(xml)
-        #f = open("/tmp/%s.osc" % self.changeset.id, 'a')
-        #f.write(xmlstr)
-        #f.write("\n\n")
-        #f.close()
 
         resp,content = self.httpObj.request(
             api_host + '/api/0.6/changeset/' + self.changeset.id + '/upload',
