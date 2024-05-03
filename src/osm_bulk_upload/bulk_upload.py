@@ -92,8 +92,8 @@ class ImportProcessor:
     id_map = None
 
     def __init__(self: T, user: str, password: str, id_map: IdMap, tags: dict = {}) -> None:
-        self.httpObj = httplib2.Http()
-        self.httpObj.add_credentials(user,password)
+        self.http_obj = httplib2.Http()
+        self.http_obj.add_credentials(user,password)
         self.id_map = id_map
         self.tags = tags
         self.create_changeset()
@@ -102,7 +102,7 @@ class ImportProcessor:
     def parse(self: T, infile) -> None:
         relationStore = {}
         relationSort = False
-        
+
         osmData = ETree.parse(infile)
         osmRoot = osmData.getroot()
         if osmRoot.tag != "osm":
@@ -117,7 +117,7 @@ class ImportProcessor:
             if elem.attrib['type'] == 'relation':
                 relationSort = True
                 break
-        
+
         for type in ('node','way'):
             for elem in osmRoot.iter(type):
                 # If elem.id is already mapped we can skip this object
@@ -182,7 +182,7 @@ class ImportProcessor:
                     child.attrib['ref'] = self.id_map[old_id_type][old_id]
 
     def create_changeset(self: T) -> None:
-        self.current_changeset = Changeset(tags=self.tags, id_map=self.id_map, httpObj=self.httpObj)
+        self.current_changeset = Changeset(tags=self.tags, id_map=self.id_map, http_obj=self.http_obj)
 
     def add_to_changeset(self: T, elem) -> None:
         if 'action' in elem.attrib:
@@ -233,7 +233,7 @@ class ChangesetClosed(Exception):
     pass
 
 
-T = Typevar('T', bound='Changeset')
+T = TypeVar('T', bound='Changeset')
 
 
 class Changeset:
@@ -242,14 +242,14 @@ class Changeset:
     currentDiffSet = None
     opened = False
     closed = False
-    
+
     itemcount = 0
 
-    def __init__(self: T, tags: dict, id_map: IdMap, httpObj) -> None:
+    def __init__(self: T, tags: dict, id_map: IdMap, http_obj) -> None:
         self.id = None
         self.tags = tags
         self.id_map = id_map
-        self.httpObj = httpObj
+        self.http_obj = http_obj
         self.item_limit = 50000
         self.create_diff_set()
 
@@ -258,9 +258,9 @@ class Changeset:
         change = ETree.SubElement(createReq, 'changeset')
         for tag in self.tags:
             ETree.SubElement(change, 'tag', k=tag, v=self.tags[tag])
-        
+
         xml = ETree.tostring(createReq)
-        resp,content = self.httpObj.request(api_host +
+        resp,content = self.http_obj.request(api_host +
             '/api/0.6/changeset/create','PUT',xml,headers=headers)
         if resp.status != 200:
             raise APIError('Error creating changeset:' + str(resp.status))
@@ -273,7 +273,7 @@ class Changeset:
             return
         self.currentDiffSet.upload()
         
-        resp, content = self.httpObj.request(
+        resp, content = self.http_obj.request(
             api_host + '/api/0.6/changeset/' + self.id + '/close',
             'PUT',
             headers=headers
@@ -284,7 +284,7 @@ class Changeset:
         self.closed = True
 
     def create_diff_set(self: T) -> None:
-        self.currentDiffSet = DiffSet(self, self.id_map, self.httpObj)
+        self.currentDiffSet = DiffSet(self, self.id_map, self.http_obj)
 
     def add_change(self, action: str, item) -> None:
         if not self.opened:
@@ -297,7 +297,7 @@ class Changeset:
         except DiffSetClosed:
             self.create_diff_set()
             self.currentDiffSet.add_change(action, item)
-        
+
         self.itemcount += 1
         if self.itemcount >= self.item_limit:
             self.currentDiffSet.upload()
@@ -308,14 +308,14 @@ class DiffSetClosed(Exception):
     pass
 
 
-T1 = Typevar('T1', bound='DiffSet')
+T1 = TypeVar('T1', bound='DiffSet')
 
 
 class DiffSet:
     itemcount = 0
     closed = False
     
-    def __init__(self: T1, changeset: Changeset, id_map: IdMap, httpObj):
+    def __init__(self: T1, changeset: Changeset, id_map: IdMap, http_obj) -> None:
         self.elems = {
             'create': ETree.Element('create'),
             'modify': ETree.Element('modify'),
@@ -323,10 +323,10 @@ class DiffSet:
         }
         self.changeset = changeset
         self.id_map = id_map
-        self.httpObj = httpObj
+        self.http_obj = http_obj
         self.item_limit = 1000
 
-    def __getitem__(self: T1, item: ETree.Element):
+    def __getitem__(self: T1, item: str) -> ETree.Element:
         return self.elems[item]
 
     def add_change(self: T1, action: str, item: ETree.Element) -> None:
@@ -348,7 +348,7 @@ class DiffSet:
             xmlstr = ETree.tostring(xml)
 
             id = self.changeset.id
-            resp, content = self.httpObj.request(
+            resp, content = self.http_obj.request(
                 api_host + '/api/0.6/changeset/' + id + '/upload',
                 'POST',
                 xmlstr,
