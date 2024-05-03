@@ -245,7 +245,7 @@ class Changeset:
     
     itemcount = 0
 
-    def __init__(self: T, tags: dict = {}, id_map: IdMap, httpObj=None) -> None:
+    def __init__(self: T, tags: dict, id_map: IdMap, httpObj) -> None:
         self.id = None
         self.tags = tags
         self.id_map = id_map
