@@ -239,13 +239,14 @@ T = TypeVar('T', bound='Changeset')
 class Changeset:
     id = None
     tags = {}
-    currentDiffSet = None
+    current_diff_set = None
     opened = False
     closed = False
 
     itemcount = 0
 
-    def __init__(self: T, tags: dict, id_map: IdMap, http_obj: httplib2.Http) -> None:
+    def __init__(self: T, tags: dict,
+                 id_map: IdMap, http_obj: httplib2.Http) -> None:
         self.id = None
         self.tags = tags
         self.id_map = id_map
@@ -253,15 +254,19 @@ class Changeset:
         self.item_limit = 50000
         self.create_diff_set()
 
-    def open(self) -> None:
-        createReq = ETree.Element('osm', version="0.6")
-        change = ETree.SubElement(createReq, 'changeset')
+    def open(self: T) -> None:
+        create_req = ETree.Element('osm', version="0.6")
+        change = ETree.SubElement(create_req, 'changeset')
         for tag in self.tags:
             ETree.SubElement(change, 'tag', k=tag, v=self.tags[tag])
 
-        xml = ETree.tostring(createReq)
-        resp,content = self.http_obj.request(api_host +
-            '/api/0.6/changeset/create','PUT',xml,headers=headers)
+        xml = ETree.tostring(create_req)
+        resp, content = self.http_obj.request(
+            api_host + '/api/0.6/changeset/create',
+            'PUT',
+            xml,
+            headers=headers
+        )
         if resp.status != 200:
             raise APIError('Error creating changeset:' + str(resp.status))
         self.id = content.decode("utf-8")
@@ -271,8 +276,8 @@ class Changeset:
     def close(self: T) -> None:
         if not self.opened:
             return
-        self.currentDiffSet.upload()
-        
+        self.current_diff_set.upload()
+
         resp, content = self.http_obj.request(
             api_host + '/api/0.6/changeset/' + self.id + '/close',
             'PUT',
@@ -284,23 +289,23 @@ class Changeset:
         self.closed = True
 
     def create_diff_set(self: T) -> None:
-        self.currentDiffSet = DiffSet(self, self.id_map, self.http_obj)
+        self.current_diff_set = DiffSet(self, self.id_map, self.http_obj)
 
-    def add_change(self, action: str, item) -> None:
+    def add_change(self: T, action: str, item: ETree.Element) -> None:
         if not self.opened:
-            self.open() # So that a changeset is only opened when required.
+            self.open()  # So that a changeset is only opened when required.
         if self.closed:
             raise ChangesetClosed
-        item.attrib['changeset']=self.id
+        item.attrib['changeset'] = self.id
         try:
-            self.currentDiffSet.add_change(action, item)
+            self.current_diff_set.add_change(action, item)
         except DiffSetClosed:
             self.create_diff_set()
-            self.currentDiffSet.add_change(action, item)
+            self.current_diff_set.add_change(action, item)
 
         self.itemcount += 1
         if self.itemcount >= self.item_limit:
-            self.currentDiffSet.upload()
+            self.current_diff_set.upload()
             self.close()
 
 
@@ -314,7 +319,7 @@ T1 = TypeVar('T1', bound='DiffSet')
 class DiffSet:
     itemcount = 0
     closed = False
-    
+
     def __init__(self: T1, changeset: Changeset, id_map: IdMap, http_obj: httplib2.Http) -> None:
         self.elems = {
             'create': ETree.Element('create'),
