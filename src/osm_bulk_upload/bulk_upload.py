@@ -96,7 +96,7 @@ class ImportProcessor:
         self.httpObj.add_credentials(user,password)
         self.id_map = id_map
         self.tags = tags
-        self.createChanges()
+        self.create_changeset()
 
 
     def parse(self: T, infile) -> None:
