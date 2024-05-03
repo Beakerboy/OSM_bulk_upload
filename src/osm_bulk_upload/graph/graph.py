@@ -27,7 +27,7 @@
 
 # Code taken from python-graph http://code.google.com/p/python-graph/
 
-from typing import Any, Generator, TypeVar
+from typing import Any, Generator, Iterator, TypeVar
 
 
 T= TypeVar('T', bound='Digraph')
@@ -35,13 +35,15 @@ T= TypeVar('T', bound='Digraph')
 
 class GraphError(RuntimeError):
     """
-    A base-class for the various kinds of errors that occur in the the python-graph class.
+    A base-class for the various kinds of errors that occur in the the
+    python-graph class.
     """
     pass
 
 class AdditionError(GraphError):
     """
-    This error is raised when trying to add a node already added to the graph or digraph.
+    This error is raised when trying to add a node already added to the graph
+    or digraph.
     """
     pass
 
@@ -51,21 +53,22 @@ class Digraph (object):
 
     Digraphs are built of nodes and directed edges.
 
-    @sort: __init__, __getitem__, __iter__, __len__, __str__, add_edge, add_node,
-    add_nodes, traversal
+    @sort: __init__, __getitem__, __iter__, __len__, __str__, add_edge,
+    add_node, add_nodes, traversal
     """
 
     def __str__(self: T) -> str:
         """
-        Return a string representing the digraph when requested by str() (or print).
+        Return a string representing the digraph when requested by str() (or
+        print).
 
         @rtype:  string
         @return: String representing the graph.
         """
-        return "<graph object " + str(self.nodes()) + " " + str(self.edges()) + ">"
+        return ("<graph object " + str(self.nodes()) + " " + str(self.edges())
+                + ">")
 
-
-    def __len__(self: T)-> int:
+    def __len__(self: T) -> int:
         """
         Return the order of the digraph when requested by len().
 
@@ -74,8 +77,7 @@ class Digraph (object):
         """
         return len(self.node_neighbors)
 
-
-    def __iter__(self: T):
+    def __iter__(self: T) -> Iterator[Any]:
         """
         Return a iterator passing through all nodes in the digraph.
 
@@ -85,8 +87,7 @@ class Digraph (object):
         for each in self.node_neighbors.iterkeys():
             yield each
 
-
-    def __getitem__(self: T, node):
+    def __getitem__(self: T, node) -> Generator[Any]:
         """
         Return a iterator passing through all neighbors of the given node.
 
@@ -106,7 +107,7 @@ class Digraph (object):
         self.node_attr = {}          # Pairing: Node -> Attributes
         self.edge_attr = {}          # Pairing: Edge -> Attributes
 
-    def add_node(self: T, node: Any, attrs = []) -> None:
+    def add_node(self: T, node: Any, attrs: list = []) -> None:
         """
         Add given node to the graph.
 
@@ -128,8 +129,7 @@ class Digraph (object):
         else:
             raise AdditionError
 
-
-    def add_nodes(self: T, nodelist) -> None:
+    def add_nodes(self: T, nodelist: list) -> None:
         """
         Add given nodes to the graph.
 
