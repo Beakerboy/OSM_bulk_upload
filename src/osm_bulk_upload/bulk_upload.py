@@ -297,11 +297,11 @@ class Changeset:
             self.currentDiffSet.addChange(action,item)
         
         self.itemcount += 1
-        if self.itemcount >= self.getItemLimit():
+        if self.itemcount >= self.get_item_limit():
             self.currentDiffSet.upload()
             self.close()
 
-    def getItemLimit(self) -> int:
+    def get_item_limit(self) -> int:
         # This is actually dictated by the API's capabilities call
         return 50000
 
@@ -336,7 +336,7 @@ class DiffSet:
         self[action].append(item)
 
         self.itemcount += 1
-        if self.itemcount >= self.getItemLimit():
+        if self.itemcount >= self.get_item_limit():
             self.upload()
 
     def upload(self: T1):
@@ -380,7 +380,7 @@ class DiffSet:
                 # (Object deleted)
                 self.id_map[id_type][old_id] = old_id
 
-    def getItemLimit(self: T1) -> int:
+    def get_item_limit(self: T1) -> int:
         # This is an arbitrary self-imposed limit (that must be below the
         # changeset limit)
         # so to limit upload times to sensible chunks.
