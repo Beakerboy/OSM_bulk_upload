@@ -286,17 +286,17 @@ class Changeset:
     def create_diff_set(self: T) -> None:
         self.currentDiffSet = DiffSet(self, self.id_map, self.httpObj)
 
-    def add_change(self, action, item) -> None:
+    def add_change(self, action: str, item) -> None:
         if not self.opened:
             self.open() # So that a changeset is only opened when required.
         if self.closed:
             raise ChangesetClosed
         item.attrib['changeset']=self.id
         try:
-            self.currentDiffSet.add_change(action,item)
+            self.currentDiffSet.add_change(action, item)
         except DiffSetClosed:
             self.create_diff_set()
-            self.currentDiffSet.add_change(action,item)
+            self.currentDiffSet.add_change(action, item)
         
         self.itemcount += 1
         if self.itemcount >= self.item_limit:
