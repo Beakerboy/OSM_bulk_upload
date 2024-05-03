@@ -89,7 +89,7 @@ class Digraph (object):
         for each in self.node_neighbors.iterkeys():
             yield each
 
-    def __getitem__(self: T, node) -> Generator[Any]:
+    def __getitem__(self: T, node: Any) -> Generator[Any]:
         """
         Return a iterator passing through all neighbors of the given node.
 
