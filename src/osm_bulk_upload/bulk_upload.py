@@ -61,8 +61,8 @@ headers = {
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument( "-i", "--input", required=True, help="read data from input.osm")
-    parser.add_argument( "-u", "--user", required=True, help="username")
+    parser.add_argument("-i", "--input", required=True, help="read data from input.osm")
+    parser.add_argument("-u", "--user", required=True, help="username")
     parser.add_argument("-p", "--password", required=True, help="password")
     parser.add_argument("-c", "--comment", required=True, help="ChangeSet Comment")
     args = parser.parse_args()
